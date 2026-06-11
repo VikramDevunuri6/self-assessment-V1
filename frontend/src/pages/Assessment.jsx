@@ -1,0 +1,1 @@
+const questions = await getQuestions();
