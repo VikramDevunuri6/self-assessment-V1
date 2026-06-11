@@ -1,17 +1,6 @@
-import { supabase } from "../lib/supabase";
+import api from "./api";
 
 export async function getQuestions() {
-  const { data, error } = await supabase
-    .from("questions")
-    .select(`
-      *,
-      question_options (*)
-    `);
-
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
-
-  if (error) throw error;
-
+  const { data } = await api.get("/questions");
   return data;
 }

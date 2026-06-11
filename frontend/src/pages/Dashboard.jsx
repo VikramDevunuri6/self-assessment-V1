@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { getProfile } from '../services/authService';
 
 export default function Dashboard() {
   useEffect(() => {
     async function test() {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*');
-
-      console.log('DATA:', data);
-      console.log('ERROR:', error);
+      try {
+        const data = await getProfile();
+        console.log('DATA:', data);
+      } catch (err) {
+        console.error('ERROR:', err);
+      }
     }
 
     test();

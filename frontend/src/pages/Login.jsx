@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { login } from "../services/authService";
 
 function Login() {
   const navigate = useNavigate();
@@ -17,15 +17,7 @@ function Login() {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) {
-        alert(error.message);
-        return;
-      }
+      const data = await login(email, password);
 
       console.log("Logged In User:", data.user);
 
@@ -34,7 +26,7 @@ function Login() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      alert(err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
     }

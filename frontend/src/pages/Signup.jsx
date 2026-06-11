@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { signup } from "../services/authService";
 
 function Signup() {
   const navigate = useNavigate();
@@ -35,62 +35,17 @@ function Signup() {
     try {
       setLoading(true);
 
-      // Create Auth User
-      const { data: authData, error: authError } =
-        await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-        });
+      const data = await signup({
+        fullName: formData.fullName,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        rollNumber: formData.rollNumber,
+        branch: formData.branch,
+        passingYear: formData.passingYear,
+        password: formData.password,
+      });
 
-      console.log("AUTH DATA:", authData);
-      console.log("AUTH ERROR:", authError);
-
-      if (authError) {
-        alert(authError.message);
-        return;
-      }
-
-      const user = authData.user;
-
-      if (!user) {
-        alert("User not created");
-        return;
-      }
-
-      console.log("USER ID:", user.id);
-
-      // Insert Profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .insert([
-          {
-            id: user.id,
-            full_name: formData.fullName,
-            email: formData.email,
-            phone_number: formData.phoneNumber,
-            roll_number: formData.rollNumber,
-            branch: formData.branch,
-            passing_year: Number(formData.passingYear),
-          },
-        ])
-        .select();
-
-      console.log("PROFILE DATA:", profileData);
-      console.log(
-        "PROFILE ERROR:",
-        JSON.stringify(profileError, null, 2)
-      );
-
-      if (profileError) {
-        alert(
-          `Profile Insert Error:\n${JSON.stringify(
-            profileError,
-            null,
-            2
-          )}`
-        );
-        return;
-      }
+      console.log("SIGNUP RESPONSE:", data);
 
       alert("Account created successfully!");
 
@@ -108,7 +63,7 @@ function Signup() {
       navigate("/");
     } catch (err) {
       console.error("SIGNUP ERROR:", err);
-      alert(err.message);
+      alert(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
