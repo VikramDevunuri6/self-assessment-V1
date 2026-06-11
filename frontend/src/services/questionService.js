@@ -8,6 +8,9 @@ export async function getQuestions() {
       question_options (*)
     `);
 
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
+
   if (error) throw error;
 
   return data;
