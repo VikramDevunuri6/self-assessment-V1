@@ -2,30 +2,30 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Sparkles, Check } from "lucide-react";
 import { getQuestions } from "../services/questionService";
+import AssessmentIllustration from "../components/AssessmentIllustration";
 import "../styles/Assessment.css";
 
 const easeOut = [0.22, 1, 0.36, 1];
 
 const stageVariants = {
-  enter: (direction) => ({
+  enter: {
     opacity: 0,
-    x: direction >= 0 ? 64 : -64,
-  }),
+    y: 28,
+  },
   center: {
     opacity: 1,
-    x: 0,
+    y: 0,
   },
-  exit: (direction) => ({
+  exit: {
     opacity: 0,
-    x: direction >= 0 ? -64 : 64,
-  }),
+    y: -28,
+  },
 };
 
 export default function Assessment() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [direction, setDirection] = useState(0);
 
   useEffect(() => {
     async function loadQuestions() {
@@ -51,14 +51,12 @@ export default function Assessment() {
 
   const goNext = () => {
     if (currentQuestion < questions.length - 1) {
-      setDirection(1);
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
   const goPrev = () => {
     if (currentQuestion > 0) {
-      setDirection(-1);
       setCurrentQuestion(currentQuestion - 1);
     }
   };
@@ -121,13 +119,6 @@ export default function Assessment() {
   if (!questions.length) {
     return (
       <div className="assessment-page assessment-loading">
-        <div className="aurora-layer" aria-hidden="true">
-          <span className="aurora-orb aurora-orb--violet" />
-          <span className="aurora-orb aurora-orb--blue" />
-          <span className="aurora-orb aurora-orb--rose" />
-          <span className="grid-overlay" />
-        </div>
-
         <motion.div
           className="loading-content"
           initial={{ opacity: 0, scale: 0.92 }}
@@ -150,160 +141,154 @@ export default function Assessment() {
 
   return (
     <div className="assessment-page">
-      <div className="aurora-layer" aria-hidden="true">
-        <span className="aurora-orb aurora-orb--violet" />
-        <span className="aurora-orb aurora-orb--blue" />
-        <span className="aurora-orb aurora-orb--rose" />
-        <span className="grid-overlay" />
-        <span className="noise-overlay" />
-      </div>
-
-      <motion.header
-        className="assessment-header"
-        initial={{ y: -24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: easeOut }}
-      >
-        <div className="header-row">
- 
-          <div className="brand-mark">
-            <Sparkles size={16} strokeWidth={2.5} />
-            <span>Self-Discovery Journey</span>
-          </div>
-
-          <div className="progress-stats">
-            <span className="progress-count">
-              Question {currentQuestion + 1} <em>/ {questions.length}</em>
-            </span>
-            <span className="progress-percent">{Math.round(progress)}%</span>
-          </div>
-        </div>
-
-        <div className="progress-track">
-          <motion.div
-            className="progress-fill"
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.6, ease: easeOut }}
-          >
-            <span className="progress-glow" />
-          </motion.div>
-        </div>
-      </motion.header>
-
-      <main className="assessment-main">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.section
-            key={question.id}
-            className="question-stage"
-            custom={direction}
-            variants={stageVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.45, ease: easeOut }}
-          >
-            <span className="question-eyebrow">
-              Question {currentQuestion + 1}
-            </span>
-
-            <h1 className="question-text">{question.question_text}</h1>
-
-            <div className="options-grid">
-              {question.question_options.map((option, index) => {
-                const isSelected = answers[question.id] === option.id;
-
-                return (
-                  <motion.button
-                    key={option.id}
-                    type="button"
-                    className={`option-card ${isSelected ? "selected" : ""}`}
-                    onClick={() => handleSelect(question.id, option.id)}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      scale: isSelected ? 1.02 : 1,
-                    }}
-                    transition={{
-                      delay: 0.15 + index * 0.06,
-                      duration: 0.45,
-                      ease: easeOut,
-                    }}
-                    whileHover={{ y: -4 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <span className="option-glyph">
-                      {String.fromCharCode(65 + index)}
-                    </span>
-
-                    <span className="option-label">{option.option_text}</span>
-
-                    <AnimatePresence>
-                      {isSelected && (
-                        <motion.span
-                          className="option-check"
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease: easeOut }}
-                        >
-                          <Check size={16} strokeWidth={3} />
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </motion.section>
-        </AnimatePresence>
-      </main>
-
-      <motion.footer
-        className="assessment-footer"
-        initial={{ y: 24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.15, ease: easeOut }}
-      >
-        <button
-          type="button"
-          className="nav-btn nav-btn--ghost"
-          onClick={goPrev}
-          disabled={currentQuestion === 0}
+      <div className="assessment-card">
+        <motion.header
+          className="assessment-header"
+          initial={{ y: -16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: easeOut }}
         >
-          <ArrowLeft size={18} />
-          <span>Back</span>
-        </button>
+          <div className="header-row">
+            <div className="brand-mark">
+              <Sparkles size={14} strokeWidth={2.5} />
+              <span>Self-Discovery Journey</span>
+            </div>
 
-        <span className="footer-hint">
-          <kbd>←</kbd>
-          <kbd>→</kbd> navigate&nbsp;&nbsp;<kbd>1-9</kbd> select
-        </span>
+            <div className="progress-stats">
+              <span className="progress-count">
+                Question {currentQuestion + 1} <em>/ {questions.length}</em>
+              </span>
+              <span className="progress-percent">
+                {Math.round(progress)}% Complete
+              </span>
+            </div>
+          </div>
 
-        {!isLastQuestion ? (
-          <motion.button
+          <div className="progress-track">
+            <motion.div
+              className="progress-fill"
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5, ease: easeOut }}
+            />
+          </div>
+        </motion.header>
+
+        <main className="assessment-main">
+          <div className="question-column">
+            <AnimatePresence mode="wait">
+              <motion.section
+                key={question.id}
+                className="question-stage"
+                variants={stageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.4, ease: easeOut }}
+              >
+                <span className="question-eyebrow">
+                  Question {currentQuestion + 1}
+                </span>
+
+                <h1 className="question-text">{question.question_text}</h1>
+
+                <div className="options-grid">
+                  {question.question_options.map((option, index) => {
+                    const isSelected = answers[question.id] === option.id;
+
+                    return (
+                      <motion.button
+                        key={option.id}
+                        type="button"
+                        className={`option-card ${isSelected ? "selected" : ""}`}
+                        onClick={() => handleSelect(question.id, option.id)}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{
+                          delay: 0.08 + index * 0.05,
+                          duration: 0.4,
+                          ease: easeOut,
+                        }}
+                        whileHover={{ scale: 1.02, y: -3 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span className="option-glyph">
+                          {String.fromCharCode(65 + index)}
+                        </span>
+
+                        <span className="option-label">{option.option_text}</span>
+
+                        <AnimatePresence>
+                          {isSelected && (
+                            <motion.span
+                              className="option-check"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{ type: "spring", stiffness: 500, damping: 28 }}
+                            >
+                              <Check size={14} strokeWidth={3} />
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </motion.section>
+            </AnimatePresence>
+          </div>
+
+          <div className="illustration-column">
+            <AssessmentIllustration />
+          </div>
+        </main>
+
+        <motion.footer
+          className="assessment-footer"
+          initial={{ y: 16, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
+        >
+          <button
             type="button"
-            className="nav-btn nav-btn--primary"
-            onClick={goNext}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            className="nav-btn nav-btn--ghost"
+            onClick={goPrev}
+            disabled={currentQuestion === 0}
           >
-            <span>Continue</span>
-            <ArrowRight size={18} />
-          </motion.button>
-        ) : (
-          <motion.button
-            type="button"
-            className="nav-btn nav-btn--submit"
-            onClick={handleSubmit}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <span>Submit Assessment</span>
-            <Sparkles size={18} />
-          </motion.button>
-        )}
-      </motion.footer>
+            <ArrowLeft size={18} />
+            <span>Back</span>
+          </button>
+
+          <span className="footer-hint">
+            <kbd>←</kbd>
+            <kbd>→</kbd> navigate&nbsp;&nbsp;<kbd>1-9</kbd> select
+          </span>
+
+          {!isLastQuestion ? (
+            <motion.button
+              type="button"
+              className="nav-btn nav-btn--primary"
+              onClick={goNext}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <span>Continue</span>
+              <ArrowRight size={18} />
+            </motion.button>
+          ) : (
+            <motion.button
+              type="button"
+              className="nav-btn nav-btn--submit"
+              onClick={handleSubmit}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <span>Submit Assessment</span>
+              <Sparkles size={18} />
+            </motion.button>
+          )}
+        </motion.footer>
+      </div>
     </div>
   );
 }
