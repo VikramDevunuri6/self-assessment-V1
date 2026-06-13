@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Env files (never commit real secrets)
+.env
+.env.*
+!.env.example
+
+# Local MCP config (contains Supabase service_role key)
+.mcp.json
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor/OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.local

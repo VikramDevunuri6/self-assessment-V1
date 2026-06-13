@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
+import { ROLES } from "../constants/roles";
 
 function Login() {
   const navigate = useNavigate();
@@ -19,11 +20,7 @@ function Login() {
 
       const data = await login(email, password);
 
-      console.log("Logged In User:", data.user);
-
-      alert("Login Successful ✅");
-
-      navigate("/dashboard");
+      navigate(data.user?.role === ROLES.STUDENT ? "/dashboard" : "/admin");
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.error || "Something went wrong");

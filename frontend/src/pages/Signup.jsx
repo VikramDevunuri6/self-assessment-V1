@@ -35,7 +35,7 @@ function Signup() {
     try {
       setLoading(true);
 
-      const data = await signup({
+      await signup({
         fullName: formData.fullName,
         phoneNumber: formData.phoneNumber,
         email: formData.email,
@@ -45,22 +45,7 @@ function Signup() {
         password: formData.password,
       });
 
-      console.log("SIGNUP RESPONSE:", data);
-
-      alert("Account created successfully!");
-
-      setFormData({
-        fullName: "",
-        phoneNumber: "",
-        email: "",
-        rollNumber: "",
-        branch: "",
-        passingYear: "",
-        password: "",
-        confirmPassword: "",
-      });
-
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       console.error("SIGNUP ERROR:", err);
       alert(err.response?.data?.error || err.message);
@@ -175,7 +160,7 @@ function Signup() {
       <br />
 
       <p>
-        Already have an account? <Link to="/">Login</Link>
+        Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
   );

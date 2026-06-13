@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Sparkles, Check } from "lucide-react";
-import { getQuestions } from "../services/questionService";
+import { startAssessment, getQuestions, submitAssessment } from "../services/assessmentService";
+import { saveAnswer } from "../services/answerService";
 import AssessmentIllustration from "../components/AssessmentIllustration";
 import "../styles/Assessment.css";
 
@@ -23,29 +25,45 @@ const stageVariants = {
 };
 
 export default function Assessment() {
+  const navigate = useNavigate();
+
+  const [sessionId, setSessionId] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function loadQuestions() {
+    async function init() {
       try {
-        const data = await getQuestions();
-        setQuestions(data);
+        setLoading(true);
+        setError(null);
+
+        const session = await startAssessment();
+        const data = await getQuestions(session.sessionId);
+
+        setSessionId(data.sessionId);
+        setQuestions(data.questions);
+        setAnswers(data.answers || {});
       } catch (err) {
-        console.error(err);
+        setError(err.response?.data?.error?.message || "Failed to load the assessment");
+      } finally {
+        setLoading(false);
       }
     }
 
-    loadQuestions();
+    init();
   }, []);
 
   const question = questions[currentQuestion];
 
   const handleSelect = (questionId, optionId) => {
-    setAnswers({
-      ...answers,
-      [questionId]: optionId,
+    setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+
+    saveAnswer({ sessionId, questionId, optionId }).catch((err) => {
+      console.error("Failed to save answer", err);
     });
   };
 
@@ -61,8 +79,19 @@ export default function Assessment() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log(answers);
+  const handleSubmit = async () => {
+    if (submitting) return;
+
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      const result = await submitAssessment(sessionId);
+      navigate(`/report/${result.sessionId}`);
+    } catch (err) {
+      setError(err.response?.data?.error?.message || "Failed to submit the assessment");
+      setSubmitting(false);
+    }
   };
 
   // Keyboard navigation: 1-9 select an option, arrow up/down cycle
@@ -97,6 +126,7 @@ export default function Assessment() {
         }
         case "ArrowRight":
         case "Enter":
+          if (answers[question.id] === undefined) break;
           if (currentQuestion < questions.length - 1) {
             goNext();
           } else {
@@ -114,9 +144,24 @@ export default function Assessment() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [question, answers, currentQuestion, questions.length]);
+  }, [question, answers, currentQuestion, questions.length, sessionId]);
 
-  if (!questions.length) {
+  if (error && !questions.length) {
+    return (
+      <div className="assessment-page assessment-loading">
+        <motion.div
+          className="loading-content"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: easeOut }}
+        >
+          <p className="loading-text">{error}</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (loading || !questions.length) {
     return (
       <div className="assessment-page assessment-loading">
         <motion.div
@@ -138,6 +183,7 @@ export default function Assessment() {
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
   const isLastQuestion = currentQuestion === questions.length - 1;
+  const hasAnswer = answers[question.id] !== undefined;
 
   return (
     <div className="assessment-page">
@@ -175,6 +221,8 @@ export default function Assessment() {
 
         <main className="assessment-main">
           <div className="question-column">
+            {error && <div className="assessment-inline-error">{error}</div>}
+
             <AnimatePresence mode="wait">
               <motion.section
                 key={question.id}
@@ -269,6 +317,7 @@ export default function Assessment() {
               type="button"
               className="nav-btn nav-btn--primary"
               onClick={goNext}
+              disabled={!hasAnswer}
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -280,10 +329,11 @@ export default function Assessment() {
               type="button"
               className="nav-btn nav-btn--submit"
               onClick={handleSubmit}
+              disabled={!hasAnswer || submitting}
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
             >
-              <span>Submit Assessment</span>
+              <span>{submitting ? "Submitting…" : "Submit Assessment"}</span>
               <Sparkles size={18} />
             </motion.button>
           )}

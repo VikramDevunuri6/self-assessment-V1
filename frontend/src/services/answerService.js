@@ -1,6 +1,6 @@
 import api from "./api";
 
-export async function submitAnswers(userId, answers) {
-  const { data } = await api.post("/answers", { userId, answers });
+export async function saveAnswer({ sessionId, questionId, optionId }) {
+  const { data } = await api.put("/answers", { sessionId, questionId, optionId });
   return data;
 }
