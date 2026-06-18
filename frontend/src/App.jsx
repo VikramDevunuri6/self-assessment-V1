@@ -5,6 +5,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Assessment from "./pages/Assessment";
 import Report from "./pages/Report";
+import ReportV1 from "./pages/ReportV1";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -47,6 +48,14 @@ function App() {
           element={
             <ProtectedRoute role={ROLES.STUDENT}>
               <Report />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/report-v1/:sessionId"
+          element={
+            <ProtectedRoute role={ROLES.STUDENT}>
+              <ReportV1 />
             </ProtectedRoute>
           }
         />

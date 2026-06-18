@@ -1,17 +1,16 @@
-import { memo, useEffect, useRef } from "react";
+import { memo } from "react";
 import { motion } from "framer-motion";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// EDIT SECTION 3 LABELS HERE
-// Change emoji, label text, or score mapping for any of the 4 points.
-// Scores 1–4 correspond to option_order 1–4 in the database.
-// ─────────────────────────────────────────────────────────────────────────────
-const REACTIONS = [
-  { score: 1, emoji: "😡", label: "Assalu kaadu" },
-  { score: 2, emoji: "😕", label: "Konchem" },
-  { score: 3, emoji: "😐", label: "Madhyalo" },
-  { score: 4, emoji: "😀", label: "Exactly nene" },
-];
+// Emoji per position only -- the 4 emoji are a fixed visual scale, but the
+// label text is per-question, sourced from question_options (option_order
+// 1–4), never hardcoded.
+const EMOJIS = ["😡", "😕", "😐", "😀"];
+
+function buildReactions(question) {
+  return [...question.question_options]
+    .sort((a, b) => a.option_order - b.option_order)
+    .map((opt, i) => ({ score: opt.option_order, emoji: EMOJIS[i], label: opt.option_text }));
+}
 
 // Pre-computed CSS calc widths for the blue progress fill at each score.
 // Fill starts at left: 22px (dot-1 center) and spans N × (track_width − 44px).
@@ -35,15 +34,17 @@ export function sliderValueToScore(value) {
   return 4;
 }
 
-function deriveInitialScore(question, savedOptionId) {
-  if (!savedOptionId) return 2;
+// Resolves the score from a previously saved answer only. Returns null when
+// the question has never been answered -- callers must not invent a default.
+function deriveScoreFromSavedAnswer(question, savedOptionId) {
+  if (!savedOptionId) return null;
   const opt = question.question_options.find((o) => o.id === savedOptionId);
-  return opt ? opt.option_order : 2;
+  return opt ? opt.option_order : null;
 }
 
 /**
  * Section 3 — 4-point emoji slider
- * Scores: 😡=1  😕=2  😐=3  😀=4
+ * Labels are per-question, read from question.question_options.
  * sliderValue stores the selected score (1–4) directly.
  */
 function SliderQuestion({
@@ -54,16 +55,10 @@ function SliderQuestion({
   sliderValue,
   onSliderChange,
 }) {
-  const initialized = useRef(false);
-
-  useEffect(() => {
-    if (!initialized.current && sliderValue === undefined) {
-      initialized.current = true;
-      onSliderChange(question.id, deriveInitialScore(question, savedOptionId));
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const selectedScore = sliderValue ?? deriveInitialScore(question, savedOptionId);
+  // null = no selection yet -- nothing should appear active until the user
+  // clicks a point or a previously saved answer exists for this question.
+  const selectedScore = sliderValue ?? deriveScoreFromSavedAnswer(question, savedOptionId);
+  const reactions = buildReactions(question);
 
   return (
     <div className="slq-container">
@@ -74,7 +69,7 @@ function SliderQuestion({
 
         {/* ── Emojis ──────────────────────────────────────────────────── */}
         <div className="slq-emojis" aria-hidden="true">
-          {REACTIONS.map(({ score, emoji }) => (
+          {reactions.map(({ score, emoji }) => (
             <motion.div
               key={score}
               className="slq-emoji-item"
@@ -94,12 +89,12 @@ function SliderQuestion({
           {/* Blue fill — CSS transition handles smooth movement */}
           <div
             className="slq-track-fill"
-            style={{ width: FILL_WIDTHS[selectedScore - 1] }}
+            style={{ width: selectedScore === null ? "0px" : FILL_WIDTHS[selectedScore - 1] }}
           />
 
           {/* Dots — absolute, space-between, same width as dot-size */}
           <div className="slq-dots">
-            {REACTIONS.map(({ score, emoji, label }) => {
+            {reactions.map(({ score, emoji, label }) => {
               const selected = score === selectedScore;
               return (
                 <motion.button
@@ -118,9 +113,9 @@ function SliderQuestion({
           </div>
         </div>
 
-        {/* ── Labels — EDIT SECTION 3 LABELS HERE (see REACTIONS above) ── */}
+        {/* ── Labels — sourced from question_options, see buildReactions above ── */}
         <div className="slq-labels" aria-hidden="true">
-          {REACTIONS.map(({ score, label }) => (
+          {reactions.map(({ score, label }) => (
             <div
               key={score}
               className={`slq-label-item${score === selectedScore ? " slq-label-item--active" : ""}`}

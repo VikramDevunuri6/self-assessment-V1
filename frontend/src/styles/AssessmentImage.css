@@ -1044,6 +1044,162 @@
 }
 
 /* ----------------------------------------------------------
+   Desktop pixel-perfect layout (≥1024px), per reference designs.
+   Card is a fixed 980×700 (Assessment.css); this 520px-tall content
+   stage gets exact per-type internal dimensions. Mobile (≤768px) and
+   tablet (769–1023px) are untouched.
+   ---------------------------------------------------------- */
+
+@media (min-width: 1024px) {
+  .assessment-main--instagram .question-column,
+  .assessment-main--scenario .question-column,
+  .assessment-main--slider .question-column,
+  .assessment-main--thisorthat .question-column {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    flex: none;
+    min-height: 0;
+  }
+
+  /* Slider/This-or-That content is shorter than 520px and doesn't fill its
+     own column (unlike Instagram/Scenario, handled below) -- center it. */
+  .assessment-main--slider .question-column,
+  .assessment-main--thisorthat .question-column {
+    justify-content: center;
+  }
+
+  /* ── Instagram — image 280×330 left, options 612px right ── */
+  .isq-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    height: 100%;
+  }
+
+  .isq-illustration {
+    flex: none;
+    width: 280px;
+    height: 330px;
+  }
+
+  .isq-options-list {
+    flex: none;
+    width: 612px;
+    justify-content: center;
+  }
+
+  .isq-option-btn {
+    flex: none;
+    height: 52px;
+  }
+
+  /* ── Scenario — image 330×220 on top, plain option rows below (612px) ──
+     .question-column is the only ancestor with a real 520px height; the
+     motion.div wrapper and .sq-container both size to content, so centering
+     has to happen on .question-column itself. */
+  .assessment-main--scenario .question-column {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .assessment-main--scenario .question-column > div {
+    flex: none;
+    height: auto;
+    align-items: center;
+  }
+
+  .sq-container {
+    flex: none;
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .sq-img-wrapper {
+    position: static;
+    flex: none;
+    width: 380px;
+    height: 253px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .sq-options-overlay {
+    position: static;
+    width: 612px;
+    padding: 0;
+  }
+
+  .sq-overlay-btn {
+    height: 52px;
+    min-height: 52px;
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: 0 1px 6px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  .sq-overlay-btn:hover {
+    background: #ffffff;
+    border-color: #93c5fd;
+  }
+
+  .sq-overlay-btn--selected {
+    background: #eff6ff;
+    border-color: #2563eb;
+  }
+
+  /* ── Slider — 420×180 rating card, centered.
+     .slq-container has no align-items set (defaults to stretch), which
+     left-aligns a fixed-width child instead of centering it -- margin:auto
+     centers .slq-slider directly regardless of the container's align-items,
+     without touching .slq-question's full-width text-centering behavior. */
+  .slq-slider {
+    width: 420px;
+    height: 180px;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  /* ── This-or-That — mockup-matched 360×320 cards + 70×70 VS circle.
+     Cards are image-only (no caption, per explicit decision) so the image
+     is centered in the full card height rather than reserving bottom
+     space for text. ── */
+  .tot-cards {
+    justify-content: center;
+    gap: 48px;
+  }
+
+  .tot-card {
+    flex: none;
+    width: 360px;
+    height: 320px;
+    justify-content: center;
+  }
+
+  .tot-vs {
+    width: 70px;
+    height: 70px;
+  }
+
+  /* card content box is 360 - 2*12px padding = 336px wide; image fills
+     most of the card (no caption competing for space below it) */
+  .tot-img {
+    max-width: 92%;
+    max-height: 80%;
+    width: auto;
+    height: auto;
+  }
+}
+
+/* ----------------------------------------------------------
    Responsive — mobile first
    ---------------------------------------------------------- */
 

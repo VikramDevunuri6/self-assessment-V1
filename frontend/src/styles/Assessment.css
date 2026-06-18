@@ -405,6 +405,39 @@
   }
 }
 
+/* ---------------------------------- */
+/* Desktop fixed shell — 980×700 card  */
+/* Header 60 / content 520 / footer 80 */
+/* ---------------------------------- */
+
+@media (min-width: 1024px) {
+  .assessment-card {
+    width: 980px;
+    max-width: 980px;
+    height: 700px;
+  }
+
+  .assessment-header {
+    flex: 0 0 60px;
+    height: 60px;
+    box-sizing: border-box;
+    padding: 14px 28px;
+  }
+
+  .assessment-main {
+    flex: 0 0 520px;
+    height: 520px;
+    padding: 0;
+  }
+
+  .assessment-footer {
+    flex: 0 0 80px;
+    height: 80px;
+    box-sizing: border-box;
+    padding: 18px 28px;
+  }
+}
+
 @media (max-width: 768px) {
   .assessment-page {
     padding: 0;

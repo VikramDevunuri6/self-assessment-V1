@@ -109,17 +109,21 @@ export default function Assessment() {
     setSliderValues((prev) => ({ ...prev, [questionId]: value }));
   }, []);
 
-  // Commit the current slider answer before advancing
+  // Commit the current slider answer before advancing.
+  // Requires an explicit selection (this session or previously saved) --
+  // does NOT default to a value the user never chose.
   const commitSliderAnswer = useCallback(() => {
     if (!question || sectionType !== "slider") return;
-    const val = sliderValues[question.id] ?? 2; // default score 2 (🙂)
-    const score = sliderValueToScore(val);
     const sorted = [...question.question_options].sort(
       (a, b) => a.option_order - b.option_order
     );
+    const savedScore = sorted.find((o) => o.id === answers[question.id])?.option_order;
+    const val = sliderValues[question.id] ?? savedScore;
+    if (val === undefined) return;
+    const score = sliderValueToScore(val);
     const optionId = sorted[score - 1]?.id;
     if (optionId) commitAnswer(question.id, optionId);
-  }, [question, sectionType, sliderValues, commitAnswer]);
+  }, [question, sectionType, sliderValues, answers, commitAnswer]);
 
   // --- Navigation ---
 
@@ -141,7 +145,7 @@ export default function Assessment() {
       setSubmitting(true);
       setError(null);
       const result = await submitAssessment(sessionId);
-      navigate(`/report/${result.sessionId}`);
+      navigate(`/report-v1/${result.sessionId}`);
     } catch (err) {
       setError(err.response?.data?.error?.message || "Failed to submit the assessment");
       setSubmitting(false);
@@ -166,6 +170,9 @@ export default function Assessment() {
           const cur = sliderValues[question.id] ?? 2;
           handleSliderChange(question.id, Math.min(4, cur + 1));
         } else if (e.key === "Enter") {
+          const hasSliderAnswer =
+            sliderValues[question.id] !== undefined || answers[question.id] !== undefined;
+          if (!hasSliderAnswer) return;
           if (currentQuestion < questions.length - 1) goNext();
           else handleSubmit();
         }
@@ -228,7 +235,7 @@ export default function Assessment() {
 
   const hasAnswer =
     sectionType === "slider"
-      ? true
+      ? sliderValues[question?.id] !== undefined || answers[question?.id] !== undefined
       : answers[question?.id] !== undefined;
 
   // --- Render: loading ---

@@ -15,6 +15,7 @@ const assessmentRoutes = require("./routes/assessmentRoutes");
 const questionRoutes = require("./routes/questionRoutes");
 const answerRoutes = require("./routes/answerRoutes");
 const resultRoutes = require("./routes/resultRoutes");
+const v1ResultRoutes = require("./routes/v1ResultRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/assessment", assessmentRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/answers", answerRoutes);
 app.use("/api/results", resultRoutes);
+app.use("/api/v1/results", v1ResultRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use(notFoundHandler);

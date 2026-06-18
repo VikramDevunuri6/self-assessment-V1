@@ -6,7 +6,8 @@ const assessmentRepository = require("../repositories/assessmentRepository");
 const questionRepository = require("../repositories/questionRepository");
 const answerRepository = require("../repositories/answerRepository");
 const resultRepository = require("../repositories/resultRepository");
-const { buildReport } = require("../resultEngine/buildReport");
+const v1ResultRepository = require("../v1Repositories/v1ResultRepository");
+const { buildReportV1 } = require("../v1Engine");
 
 function assertOwnership(session, userId) {
   if (session.user_id !== userId) {
@@ -21,12 +22,22 @@ async function getLatestSession(userId) {
   }
 
   let hasResult = false;
+  let engineVersion = null;
   if (session.status === SESSION_STATUS.COMPLETED) {
-    const result = await resultRepository.getLatestResult(session.id);
-    hasResult = !!result;
+    const v1Result = await v1ResultRepository.getLatestResult(session.id);
+    if (v1Result) {
+      hasResult = true;
+      engineVersion = "v1";
+    } else {
+      // Legacy fallback: sessions completed under the old (now dormant)
+      // question set still have their report in the old table.
+      const legacyResult = await resultRepository.getLatestResult(session.id);
+      hasResult = !!legacyResult;
+      engineVersion = legacyResult ? "legacy" : null;
+    }
   }
 
-  return { hasSession: true, sessionId: session.id, status: session.status, hasResult };
+  return { hasSession: true, sessionId: session.id, status: session.status, hasResult, engineVersion };
 }
 
 async function startAssessment(userId) {
@@ -48,7 +59,7 @@ async function getQuestionsForSession(sessionId, userId) {
 
   const [questions, answers, totalQuestions] = await Promise.all([
     questionRepository.getActiveQuestions(),
-    answerRepository.getAnswersForSession(sessionId),
+    answerRepository.getActiveAnswersForSession(sessionId),
     questionRepository.getActiveQuestionCount(),
   ]);
 
@@ -75,7 +86,7 @@ async function submitAssessment(sessionId, userId) {
   }
 
   const [answers, totalQuestions] = await Promise.all([
-    answerRepository.getAnswersForSession(sessionId),
+    answerRepository.getActiveAnswersForSession(sessionId),
     questionRepository.getActiveQuestionCount(),
   ]);
 
@@ -87,19 +98,27 @@ async function submitAssessment(sessionId, userId) {
     );
   }
 
-  const report = await buildReport(sessionId);
+  const { reportJson, persistable } = await buildReportV1(sessionId, session.started_at);
 
-  const latest = await resultRepository.getLatestResult(sessionId);
+  const latest = await v1ResultRepository.getLatestResult(sessionId);
   const version = (latest?.version || 0) + 1;
 
-  await resultRepository.insertResult({ sessionId, userId, reportJson: report, version });
+  await v1ResultRepository.insertSessionTraitScores(sessionId, persistable.traitScoreRows);
+  await v1ResultRepository.insertSessionDepartmentScores(sessionId, persistable.departmentScoreRows);
+  await v1ResultRepository.insertResult({
+    sessionId,
+    userId,
+    reportJson,
+    version,
+    ...persistable.summary,
+  });
 
   const updatedSession = await assessmentRepository.updateSession(sessionId, {
     status: SESSION_STATUS.COMPLETED,
     completed_at: new Date().toISOString(),
   });
 
-  return { sessionId, status: updatedSession.status, version, report };
+  return { sessionId, status: updatedSession.status, version, report: reportJson };
 }
 
 module.exports = {

@@ -63,7 +63,7 @@ async function getLatestSessionForUser(userId) {
 async function getSessionById(sessionId) {
   const { data, error } = await supabase
     .from("assessment_sessions")
-    .select("*, profiles ( full_name, email )")
+    .select("*, profiles ( full_name, email, roll_number, branch, passing_year )")
     .eq("id", sessionId)
     .maybeSingle();
 

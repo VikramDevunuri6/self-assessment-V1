@@ -64,7 +64,9 @@ export default function Dashboard() {
   const handleViewAssessment = () => navigate("/assessment");
 
   const handleViewReport = () => {
-    if (latestSession?.hasResult) {
+    if (latestSession?.hasResult && latestSession.engineVersion === "v1") {
+      navigate(`/report-v1/${latestSession.sessionId}`);
+    } else if (latestSession?.hasResult) {
       navigate(`/report/${latestSession.sessionId}`);
     } else {
       navigate("/assessment");
