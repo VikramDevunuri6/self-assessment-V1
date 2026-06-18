@@ -1,0 +1,446 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+.report-page,
+.report-page *,
+.report-page *::before,
+.report-page *::after {
+  box-sizing: border-box;
+}
+
+.report-page {
+  --primary: #2563eb;
+  --primary-light: #60a5fa;
+  --primary-soft: #eff6ff;
+  --navy: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border: #e2e8f0;
+  --surface: #f1f5f9;
+  --bg: #f8fafc;
+  --white: #ffffff;
+  --green: #16a34a;
+  --green-soft: #f0fdf4;
+  --amber: #d97706;
+  --amber-soft: #fffbeb;
+
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg);
+  color: var(--navy);
+  font-family: "Inter", system-ui, sans-serif;
+  padding: clamp(16px, 4vw, 40px);
+}
+
+.report-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---------------------------------- */
+/* Loading / error states              */
+/* ---------------------------------- */
+
+.report-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.report-loading-orb {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+}
+
+.report-loading p {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.report-error {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #b91c1c;
+  max-width: 36ch;
+}
+
+.report-error-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ---------------------------------- */
+/* Header                              */
+/* ---------------------------------- */
+
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.report-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.report-back:hover {
+  color: var(--navy);
+}
+
+.report-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  border: none;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: box-shadow 0.25s ease, opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.report-btn--primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  box-shadow: 0 12px 28px -12px rgba(37, 99, 235, 0.55);
+}
+
+.report-btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.report-btn--ghost {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.report-btn--ghost:hover {
+  border-color: #cbd5e1;
+  color: var(--navy);
+}
+
+/* ---------------------------------- */
+/* Cards                                */
+/* ---------------------------------- */
+
+.report-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 18px 48px -28px rgba(15, 23, 42, 0.12);
+}
+
+.report-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* ---------------------------------- */
+/* Hero card                            */
+/* ---------------------------------- */
+
+.hero-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding-right: clamp(140px, 22vw, 200px);
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.hero-card h1 {
+  margin: 4px 0 0;
+  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.hero-description {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.confidence-ring {
+  position: absolute;
+  top: clamp(20px, 3vw, 32px);
+  right: clamp(20px, 3vw, 32px);
+  width: clamp(96px, 14vw, 132px);
+  height: clamp(96px, 14vw, 132px);
+}
+
+.confidence-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.confidence-track,
+.confidence-fill {
+  fill: none;
+  stroke-width: 10;
+}
+
+.confidence-track {
+  stroke: var(--surface);
+}
+
+.confidence-fill {
+  stroke: var(--primary);
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.8s ease;
+}
+
+.confidence-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.confidence-value span {
+  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.confidence-value small {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------------------------------- */
+/* Radar charts                        */
+/* ---------------------------------- */
+
+.radar-legend {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.radar-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.radar-legend-code {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.radar-legend-name {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.radar-legend-score {
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* ---------------------------------- */
+/* Trait bars                          */
+/* ---------------------------------- */
+
+.trait-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.trait-bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 40px;
+  align-items: center;
+  gap: 14px;
+}
+
+.trait-bar-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.trait-bar-track {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.trait-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+}
+
+.trait-bar-score {
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* ---------------------------------- */
+/* Recommendation lists                */
+/* ---------------------------------- */
+
+.recommendation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recommendation-list li {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.recommendation-list li strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.recommendation-list li p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.strengths-card li {
+  background: var(--green-soft);
+  border-color: #bbf7d0;
+}
+
+.strengths-card li strong {
+  color: #15803d;
+}
+
+.weaknesses-card li {
+  background: var(--amber-soft);
+  border-color: #fde68a;
+}
+
+.weaknesses-card li strong {
+  color: #b45309;
+}
+
+/* ---------------------------------- */
+/* Responsive                          */
+/* ---------------------------------- */
+
+@media (max-width: 860px) {
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-card {
+    padding-right: clamp(20px, 3vw, 32px);
+    padding-bottom: clamp(120px, 30vw, 160px);
+  }
+
+  .confidence-ring {
+    top: auto;
+    bottom: clamp(20px, 3vw, 32px);
+    right: clamp(20px, 3vw, 32px);
+  }
+
+  .trait-bar-row {
+    grid-template-columns: 96px 1fr 36px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .report-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-btn {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,1108 @@
+/* ============================================================
+   Assessment Image System — companion to Assessment.css
+   Mobile-first. Target: 390–430px width, iPhone 13/14/15.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   Layout overrides — image-based sections are single-column
+   ---------------------------------------------------------- */
+
+/* Slider / This-or-That — single-column, scrollable */
+.assessment-main--slider,
+.assessment-main--thisorthat {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: flex-start;
+  padding: 16px;
+  gap: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Slider: switch to flexbox so the content block can be vertically centered */
+.assessment-main--slider {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-y: hidden;
+}
+
+.assessment-main--slider .question-column,
+.assessment-main--thisorthat .question-column {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Scenario: full-height image with overlay buttons — mirrors Instagram layout */
+.assessment-main--scenario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.assessment-main--scenario .question-column {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  /* Desktop fallback: ensure minimum visible height before dvh kicks in */
+  min-height: 600px;
+}
+
+/* Pass flex height through AnimatePresence motion.div wrapper */
+.assessment-main--scenario .question-column > div {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Instagram — full-height flex column, strict height distribution.
+   EVERY ancestor from .assessment-card down needs min-height: 0 so
+   the bounded height from height: 100dvh propagates to .isq-card. */
+.assessment-main--instagram {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;  /* critical: lets flex children shrink past content size */
+}
+
+.assessment-main--instagram .question-column {
+  flex: 1;
+  min-height: 0;  /* critical */
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Pass height through the AnimatePresence motion.div wrapper */
+.assessment-main--instagram .question-column > div {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------
+   QuestionImage  (.qi-*)
+   Base: portrait 9:16 wrapper, overlays go inside as children
+   ---------------------------------------------------------- */
+
+.qi-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #f1f5f9;
+}
+
+.qi-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Loading shimmer */
+.qi-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 25%,
+    #e2e8f0 50%,
+    #f1f5f9 75%
+  );
+  background-size: 200% 100%;
+  animation: qi-shimmer-anim 1.4s ease-in-out infinite;
+}
+
+@keyframes qi-shimmer-anim {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error fallback */
+.qi-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: inherit;
+}
+
+.qi-fallback-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.qi-fallback-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: center;
+  padding: 0 16px;
+}
+
+/* ----------------------------------------------------------
+   QuestionImage variants
+   Scenario / Slider: auto height with mobile cap.
+   ThisOrThat: natural dimensions (image may be landscape).
+   ---------------------------------------------------------- */
+
+/* Scenario — fills the sq-container height (no cap).
+   object-fit: contain shows the full image (badge + character + empty area).
+   object-position: top keeps badge visible; empty gradient is at bottom. */
+.qi-wrapper--scenario {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;   /* sq-container handles rounding */
+  overflow: hidden;
+}
+
+.qi-wrapper--scenario .qi-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+}
+
+/* Slider — slightly more compact to leave room for emoji picker */
+.qi-wrapper--slider {
+  aspect-ratio: auto;
+  max-height: 260px;
+}
+
+.qi-wrapper--slider .qi-img {
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+  object-fit: contain;
+}
+
+/* This or That — show image at its natural dimensions (may be landscape) */
+.qi-wrapper--thisorthat {
+  aspect-ratio: auto;
+  width: 100%;
+}
+
+.qi-wrapper--thisorthat .qi-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ----------------------------------------------------------
+   OverlayOptionZone  (.ooz / .instagram-option-*)
+   Transparent tap-zone over one visual option inside the image.
+   ---------------------------------------------------------- */
+
+.ooz {
+  position: absolute;
+  border: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  outline: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 4px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.ooz:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.ooz:hover {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.ooz--selected {
+  background: rgba(37, 99, 235, 0.2) !important;
+  border-color: rgba(37, 99, 235, 0.5);
+}
+
+.ooz-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------
+   OverlayChoiceZone  (.ocz / .this-or-that-*)
+   Left/right tap-zones for This or That images.
+   ---------------------------------------------------------- */
+
+.ocz {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.ocz:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: -3px;
+}
+
+.ocz:hover {
+  background: rgba(37, 99, 235, 0.07);
+}
+
+.ocz--selected {
+  background: rgba(37, 99, 235, 0.15) !important;
+}
+
+.ocz-indicator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ocz-pulse {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.3);
+}
+
+/* ----------------------------------------------------------
+   Instagram Story Question  (.isq-*)
+
+   The image already contains the badge ("COLLEGE LIFE") and question text
+   as part of its visual design. There are NO separate HTML sections for
+   these — adding them creates a visible duplicate above the illustration.
+
+   Layout (flex-grow distribution, total = 100):
+     Illustration  flex: 73  (image shows badge 7 + question 18 + scene 48)
+     Options       flex: 27
+
+   Desktop: .isq-card has an explicit height: 900px so flex-grow always has
+   a definite parent to distribute against (prevents the 0px collapse).
+   Mobile:  .isq-card uses flex:1 from the 100dvh chain; flex ratios are
+   adjusted to 65/35 to give options more room on smaller screens.
+   ---------------------------------------------------------- */
+
+/* ── Card shell ─────────────────────────────────────────────────────────── */
+
+.isq-card {
+  width: 100%;
+  height: 900px;           /* definite desktop height — prevents 0px collapse */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .isq-card {
+    height: auto;          /* let flex chain from 100dvh drive the height */
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* ── Illustration  (top 63% of card) ────────────────────────────────────── */
+/* 63% of 900px = 567px on desktop. At card width ~430px, object-fit:cover   */
+/* scales the 9:16 image to 430×765px and shows the top 567px (74% of the   */
+/* canvas). Instagram option zones begin at 75.5% — this crops just before.  */
+
+.isq-illustration {
+  flex: 63 0 0;            /* 63/100 of card height — stops before option zones */
+  display: flex;           /* child .qi-wrapper--instagram gets flex:1 */
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Instagram image wrapper — overrides base .qi-wrapper's aspect-ratio:9/16.
+   flex:1 inside display:flex parent fills the illustration height reliably
+   without percentage height calculations. */
+.qi-wrapper--instagram {
+  flex: 1;                 /* fills .isq-illustration height */
+  aspect-ratio: auto;      /* override base 9/16 — no intrinsic height forced */
+  min-width: 0;
+  border-radius: 0;
+}
+
+.qi-wrapper--instagram .qi-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;  /* show top of image (where question text is) */
+}
+
+/* ── Options container  (bottom 37% of card) ────────────────────────────── */
+/* EDIT OPTION TEXT → SAMPLE_OPTIONS in InstagramStoryQuestion.jsx           */
+/* or update the database rows (question_options table).                     */
+
+.isq-options-list {
+  flex: 37 0 0;            /* 37/100 of 900px = 333px — 4 buttons @ ~72px each */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 14px 14px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .isq-options-list {
+    gap: 6px;
+    padding: 6px 12px 12px;
+  }
+}
+
+/* ── Option button ───────────────────────────────────────────────────────── */
+/* flex:1 distributes the options container height equally across 4 buttons.
+   Desktop: 243 - 8 - 14 - 3×8 = 197px ÷ 4 = ~49px each
+   Mobile:  35% of ~696px = 244 - 6 - 12 - 3×6 = 208px ÷ 4 = ~52px each  */
+
+.isq-option-btn {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 1px 6px -2px rgba(0, 0, 0, 0.1);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.isq-option-btn:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 14px -6px rgba(37, 99, 235, 0.22);
+}
+
+.isq-option-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.isq-option-btn--selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1),
+              0 4px 14px -6px rgba(37, 99, 235, 0.28);
+}
+
+.isq-option-glyph {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: #64748b;
+  transition: background-color 0.18s, color 0.18s;
+}
+
+.isq-option-btn--selected .isq-option-glyph {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.isq-option-text {
+  flex: 1;
+  line-height: 1.35;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.isq-option-check {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----------------------------------------------------------
+   Scenario Question  (.sq-*)
+   Image fills available height; answer buttons are overlaid
+   in the lower empty area of the illustration.
+   ---------------------------------------------------------- */
+
+/* Stacking context for absolute image + buttons */
+.sq-container {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  width: 100%;
+}
+
+/* Image layer — fills full container */
+.sq-img-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Button overlay — pinned to bottom of image */
+.sq-options-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 20px;
+}
+
+/* ── Overlay buttons ─────────────────────────────────────── */
+
+.sq-overlay-btn {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #0f172a;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  min-height: 50px;
+  outline: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+  transition: background-color 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+
+.sq-overlay-btn:hover {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.sq-overlay-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.sq-overlay-btn--selected {
+  background: rgba(239, 246, 255, 0.96);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12), 0 2px 10px rgba(0, 0, 0, 0.14);
+}
+
+.sq-overlay-glyph {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: #475569;
+  transition: background-color 0.18s, color 0.18s;
+}
+
+.sq-overlay-btn--selected .sq-overlay-glyph {
+  background: #2563eb;
+  color: #fff;
+}
+
+.sq-overlay-label {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.sq-overlay-check {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----------------------------------------------------------
+   Slider Question — 4-point emoji track  (.slq-*)
+   ---------------------------------------------------------- */
+
+.slq-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* EDIT SECTION 3 QUESTION HERE — update question_text via the database */
+.slq-question {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
+/* Slider card */
+.slq-slider {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 20px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+}
+
+/* ── Emoji row ──────────────────────────────────────────────────────── */
+
+.slq-emojis {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 14px;
+}
+
+.slq-emoji-item {
+  width: 44px;          /* matches dot diameter */
+  text-align: center;
+  font-size: 2.2rem;
+  line-height: 1;
+  display: block;
+  user-select: none;
+}
+
+/* ── Track ──────────────────────────────────────────────────────────── */
+
+.slq-track {
+  position: relative;
+  height: 44px;
+}
+
+/* Grey baseline: left/right = 22px (half of 44px dot) so line
+   runs exactly dot-center to dot-center */
+.slq-track-bg {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  right: 22px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 99px;
+  transform: translateY(-50%);
+}
+
+/* Blue progress fill — CSS transition moves it smoothly */
+.slq-track-fill {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  height: 4px;
+  background: #2563eb;
+  border-radius: 99px;
+  transform: translateY(-50%);
+  z-index: 1;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Dots container: absolute, full track width, space-between */
+.slq-dots {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.slq-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+  transition: border-color 0.18s, background-color 0.18s, box-shadow 0.18s;
+}
+
+.slq-dot--selected {
+  border-color: #2563eb;
+  background: #2563eb;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18);
+}
+
+.slq-dot:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+/* ── Label row ──────────────────────────────────────────────────────── */
+
+/* EDIT SECTION 3 LABELS HERE → update REACTIONS in SliderQuestion.jsx */
+.slq-labels {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 14px;
+}
+
+.slq-label-item {
+  width: 44px;          /* matches dot width so labels track with dots */
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: visible;
+  transition: color 0.18s;
+}
+
+/* Anchor first/last labels to the screen edges so they don't clip */
+.slq-labels .slq-label-item:first-child { text-align: left; }
+.slq-labels .slq-label-item:last-child  { text-align: right; }
+
+.slq-label-item--active {
+  color: #2563eb;
+}
+
+/* ----------------------------------------------------------
+   This or That — Comparison Cards  (.tot-*)
+   ---------------------------------------------------------- */
+
+.tot-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* EDIT SECTION 4 QUESTION HERE — update question_text via the database */
+.tot-question {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.tot-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  text-align: center;
+}
+
+/* ── Cards + VS — mobile: vertical stack ───────────────── */
+
+.tot-cards {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.tot-card {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 12px;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.tot-card--a { background: #f3f7ff; }
+.tot-card--b { background: #f3f7ff; }
+
+.tot-card--selected {
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 2px rgba(34, 197, 94, 0.15),
+    0 8px 28px -8px rgba(34, 197, 94, 0.45);
+}
+
+.tot-card:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+/* ── Illustration image ──────────────────────────────────── */
+
+.tot-img {
+  width: 100%;
+  border-radius: 14px;
+  display: block;
+  object-fit: contain;
+  /* Cap image height so both cards + header + VS fit in one mobile viewport */
+  max-height: clamp(120px, 22vh, 200px);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Check badge — top-right corner of selected card */
+.tot-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── VS badge ──────────────────────────────────────────────── */
+
+.tot-vs {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
+}
+
+/* Bottom helper text */
+.tot-hint {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Desktop: side by side ─────────────────────────────────── */
+
+@media (min-width: 640px) {
+  .tot-cards {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .tot-card {
+    flex: 1;
+  }
+
+  .tot-vs {
+    align-self: center;
+    flex-shrink: 0;
+  }
+}
+
+/* ----------------------------------------------------------
+   ProgressIndicator  (.pi-*)
+   ---------------------------------------------------------- */
+
+.pi-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.pi-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pi-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.pi-stats {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.pi-count em {
+  font-style: normal;
+  color: #94a3b8;
+}
+
+.pi-percent {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #2563eb;
+}
+
+.pi-track {
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.pi-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+/* ----------------------------------------------------------
+   QuestionNavigation  (.qnav-*)
+   ---------------------------------------------------------- */
+
+.qnav-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.qnav-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.qnav-hint kbd {
+  font-family: inherit;
+  font-size: 0.68rem;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+
+.qnav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 14px;
+  border: none;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition:
+    box-shadow 0.22s ease,
+    background-color 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    opacity 0.18s ease;
+  white-space: nowrap;
+}
+
+.qnav-btn--ghost {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+}
+
+.qnav-btn--ghost:not(:disabled):hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.qnav-btn--ghost:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.qnav-btn--primary {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgba(37, 99, 235, 0.55);
+}
+
+.qnav-btn--primary:not(:disabled):hover {
+  box-shadow: 0 12px 26px -8px rgba(37, 99, 235, 0.65);
+}
+
+.qnav-btn--submit {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgba(29, 78, 216, 0.55);
+}
+
+.qnav-btn--submit:not(:disabled):hover {
+  box-shadow: 0 12px 26px -8px rgba(29, 78, 216, 0.65);
+}
+
+.qnav-btn--primary:disabled,
+.qnav-btn--submit:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ----------------------------------------------------------
+   Responsive — mobile first
+   ---------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  /* Scenario keeps padding: 0 (its own rule). Slider + thisorthat need consistent padding. */
+  .assessment-main--slider,
+  .assessment-main--thisorthat {
+    padding: 12px 16px;
+  }
+
+  /* Scenario on mobile: remove desktop min-height so flex chain drives height */
+  .assessment-main--scenario .question-column {
+    min-height: 0;
+  }
+
+  .assessment-main--instagram .question-column,
+  .assessment-main--scenario .question-column,
+  .assessment-main--slider .question-column,
+  .assessment-main--thisorthat .question-column {
+    max-width: 100%;
+  }
+
+  .qi-wrapper {
+    border-radius: 12px;
+  }
+
+  /* Slightly tighten emoji on narrow phones */
+  .slq-emoji-item {
+    font-size: 1.9rem;
+  }
+
+  .qnav-hint {
+    display: none;
+  }
+
+  .qnav-btn--ghost span {
+    display: none;
+  }
+
+  .qnav-btn {
+    padding: 13px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Scenario overlay buttons — tighter on narrow phones */
+  .sq-overlay-btn {
+    padding: 10px 12px;
+    font-size: 0.84rem;
+    min-height: 46px;
+  }
+
+  .sq-overlay-glyph {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .slq-slider {
+    padding: 22px 14px;
+  }
+}
