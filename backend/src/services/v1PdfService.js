@@ -58,10 +58,19 @@ function resolveExecutablePath() {
   return found;
 }
 
+const PAGE_WIDTH_PX = 860;
+
 /**
- * Renders the v1 executive report to a single-page A4 PDF via headless
+ * Renders the v1 executive report to a single-page PDF via headless
  * Chromium and streams it to the HTTP response. Sibling to pdfService.js
  * (old engine, pdfkit-based) so that file needs zero edits.
+ *
+ * The page is a tall poster-style single page (fixed width, height fit to
+ * content) rather than a literal A4 sheet -- a strict 297x210mm landscape
+ * canvas forced 6-9px micro-type to make every section fit, which read as
+ * "generated" rather than "designed" (see V2.1 design-review pass). The
+ * height is measured from the rendered DOM so the PDF is always exactly
+ * one page regardless of how report content varies in length.
  */
 async function streamReportPdf(res, { report, sessionId, generatedAt, meta = {} }) {
   const html = buildExecutiveHtml(report, { ...meta, generatedAt });
@@ -74,12 +83,16 @@ async function streamReportPdf(res, { report, sessionId, generatedAt, meta = {} 
 
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width: 794, height: 1123 });
+    await page.setViewport({ width: PAGE_WIDTH_PX, height: 1200 });
     await page.setContent(html, { waitUntil: "load" });
 
+    const contentHeight = await page.evaluate(() => document.body.scrollHeight);
+
     const pdfBuffer = await page.pdf({
-      format: "A4",
+      width: `${PAGE_WIDTH_PX}px`,
+      height: `${contentHeight}px`,
       printBackground: true,
+      pageRanges: "1",
       margin: { top: 0, bottom: 0, left: 0, right: 0 },
     });
 
